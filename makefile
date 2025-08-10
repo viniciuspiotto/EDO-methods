@@ -12,14 +12,14 @@ all: $(BINDIR)/$(TARGET)
 
 $(BINDIR)/$(TARGET): $(OBJS)
 	@mkdir -p $(BINDIR)
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: $(BINDIR)/$(TARGET)
-	./$(BINDIR)/$(TARGET)
+	./$(BINDIR)/$(TARGET) 
 
 clean:
 	rm -rf $(OBJDIR) $(BINDIR)
