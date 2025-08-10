@@ -1,13 +1,15 @@
 #ifndef METHODS_H
 #define METHODS_H
 
-#define PI 3.14159265358979323846
-
 typedef struct result {
     double * x_values;
     double * y_values;
     int size;
 } Result;
+
+extern double g_y_n;
+extern double g_t_next;
+extern double g_h;
 
 Result euler (double y0, double x0, double h, double n);
 Result adamsBashford2 (double y0, double x0, double h, double n);
