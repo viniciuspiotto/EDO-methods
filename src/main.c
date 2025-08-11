@@ -1,39 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <methods.h>
+#include "writeFile.h"
 
 int main() {
 
-    printf("euler explicito:\n");
+    FILE *file = fopen("EDO_Descarga_de_Um_Capacitor_de_Circuitos_de_RC.txt", "w");
+
+    if (file == NULL) {
+        printf("Erro ao abrir arquivo para escrita!\n");
+        return 1; 
+    }
+
+    fprintf(file, "Euler Explicito \n");
     Result res = euler(0, 0, 0.25, 20);
-    for(int i = 0; i < res.size; i++){
-        printf("x: %.4f y: %.4f\n", res.x_values[i], res.y_values[i]);
-    }
+    writeFile(file, res);  
 
-    printf("euler implicito:\n");
+    fprintf(file, "Euler Implicito \n");
     res = eulerImplicito(0, 0, 0.25, 20);
-    for(int i = 0; i < res.size; i++){
-        printf("x: %.4f y: %.4f\n", res.x_values[i], res.y_values[i]);
-    }
+    writeFile(file, res);  
 
-    printf("BDF2:\n");
+    fprintf(file, "BDF2 \n");
     res = BDF2(0, 0.25 * f(0, 0), 0, 0.25, 20);
-    for(int i = 0; i < res.size; i++){
-        printf("x: %.4f y: %.4f\n", res.x_values[i], res.y_values[i]);
-    }
+    writeFile(file, res);  
 
-    printf("Adam Bashford 2: \n");
+    fprintf(file, "Adams Bashford 2 \n");
     res = adamsBashford2(0, 0, 0.25, 20);
-    for(int i = 0; i < res.size; i++){
-        printf("x: %.4f y: %.4f\n", res.x_values[i], res.y_values[i]);
-    }
+    writeFile(file, res);  
 
-    printf("Trapezio Implicito: \n");
+    fprintf(file, "Trapezio Implicito \n");
     res = trapezioImplicito(0, 0, 0.25, 20);
-    for(int i = 0; i < res.size; i++){
-        printf("x: %.4f y: %.4f\n", res.x_values[i], res.y_values[i]);
-    }
-    
+    writeFile(file, res);  
+
+    fclose(file);
     free(res.x_values);
     free(res.y_values);
 
