@@ -16,10 +16,14 @@ int main() {
         printf("x: %.4f y: %.4f\n", res.x_values[i], res.y_values[i]);
     }
 
-    // double y0, double y1, double x0, double h, double n
     printf("BDF2:\n");
-
     res = BDF2(0, 0.25 * f(0, 0), 0, 0.25, 20);
+    for(int i = 0; i < res.size; i++){
+        printf("x: %.4f y: %.4f\n", res.x_values[i], res.y_values[i]);
+    }
+
+    printf("Adam Bashford 2: \n");
+    res = adamsBashford2(0, 0, 0.25, 20);
     for(int i = 0; i < res.size; i++){
         printf("x: %.4f y: %.4f\n", res.x_values[i], res.y_values[i]);
     }

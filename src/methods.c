@@ -110,3 +110,33 @@ Result BDF2(double y0, double y1, double x0, double h, double n) {
 
     return res;
 }
+
+Result adamsBashford2(double y0, double x0, double h, double n) {
+
+    Result res;
+    res.size = n + 1;
+
+    res.x_values = malloc(res.size * sizeof(double));
+    res.y_values = malloc(res.size * sizeof(double));
+
+    res.x_values[0] = x0;
+    res.y_values[0] = y0;
+
+    res.x_values[1] = x0 + h;
+    res.y_values[1] = y0 + h * f(x0, y0);
+
+    for (int i = 1; i < n; i++) {
+
+        res.x_values[i+1] = res.x_values[i] + h;
+
+        double fk = f(res.x_values[i], res.y_values[i]);
+        double fk_1 = f(res.x_values[i-1], res.y_values[i-1]);
+
+        double y_next = res.y_values[i] + h * ((3.0 / 2.0) * fk - (1.0 / 2.0) * fk_1);
+
+        res.y_values[i+1] = y_next;
+
+    }
+
+    return res;
+}
