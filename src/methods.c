@@ -6,6 +6,7 @@
 
 double g_y_n_prev;
 double g_y_n;
+double g_t_n;
 double g_t_next;
 double g_h;
 
@@ -15,6 +16,10 @@ double f (double x, double y){
 
 double gEulerImplicito (double y) {
     return y - g_y_n - g_h * f(g_t_next, y);
+}
+
+double gEulerTrapezio(double y) {
+    return y - g_y_n - (g_h / 2.0) * (f(g_t_n, g_y_n) + f(g_t_next, y));
 }
 
 Result euler (double y0, double x0, double h, double n){
@@ -109,6 +114,7 @@ Result BDF2(double y0, double y1, double x0, double h, double n) {
     }
 
     return res;
+
 }
 
 Result adamsBashford2(double y0, double x0, double h, double n) {
@@ -139,4 +145,32 @@ Result adamsBashford2(double y0, double x0, double h, double n) {
     }
 
     return res;
+
 }
+
+Result trapezioImplicito(double y0, double x0, double h, double n) {
+
+    Result res;
+    res.size = n + 1;
+
+    res.x_values = malloc(res.size * sizeof(double));
+    res.y_values = malloc(res.size * sizeof(double));
+
+    res.x_values[0] = x0;
+    res.y_values[0] = y0;
+
+    for (int i = 1; i <= n; i++) {
+        res.x_values[i] = res.x_values[i-1] + h;
+
+        g_y_n = res.y_values[i-1];      
+        g_t_n = res.x_values[i-1];      
+        g_t_next = res.x_values[i];       
+        g_h = h;
+
+        res.y_values[i] = secante(gEulerTrapezio, g_y_n, g_y_n + 0.1, 1e-8, 1e-8);
+    }
+
+    return res;
+}
+
+
