@@ -9,6 +9,8 @@ double g_y_n;
 double g_t_n;
 double g_t_next;
 double g_h;
+double g_k;
+double g_k_1;
 
 double f (double x, double y){
     return 10 * (12 * cos(2 * M_PI * x) - y);
@@ -148,6 +150,45 @@ Result adamsBashford2(double y0, double x0, double h, double n) {
 
 }
 
+double gAdamsMoulton2(double y) {
+    return 12 * (y - g_y_n) - g_h * (5 * f(g_t_next, y) + 8 * g_k - g_k_1);
+}
+
+Result adamsMoulton2(double y0, double y1, double x0, double h, double n) {
+    Result res;
+    res.size = n + 1;
+
+    res.x_values = malloc(res.size * sizeof(double));
+    res.y_values = malloc(res.size * sizeof(double));
+    res.x_values[0] = x0;
+    res.y_values[0] = y0;
+
+    double fk, fk_1;
+
+    res.x_values[1] = x0 + h;
+    res.y_values[1] = y1;
+    fk = f(res.x_values[0], res.y_values[0]);
+    fk_1 = f(res.x_values[1], res.y_values[1]);
+
+    for (int i = 2; i <= n; i++) {
+        res.x_values[i] = res.x_values[i-1] + h;
+
+        g_h = h;
+        g_t_next = res.x_values[i];
+        g_y_n = res.y_values[i-1];
+        g_k = fk_1;
+        g_k_1 = fk;
+
+        double initial_guess = res.y_values[i-1];
+        res.y_values[i] = secante(gAdamsMoulton2, initial_guess, initial_guess + 0.1, 1e-8, 1e-8);
+        
+        fk = fk_1;
+        fk_1 = f(res.x_values[i], res.y_values[i]);
+    }
+
+    return res;
+}
+
 Result trapezioImplicito(double y0, double x0, double h, double n) {
 
     Result res;
@@ -172,5 +213,6 @@ Result trapezioImplicito(double y0, double x0, double h, double n) {
 
     return res;
 }
+
 
 
