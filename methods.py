@@ -125,8 +125,8 @@ def trapezio_implicito(f, y0, t0, h, n):
 # Caso de uso: EDOs Rígidas de longos períodos
 def bdf2(f, y0, y1, t0, h, n):
     from scipy.optimize import fsolve
-    y = [y0, y1]
-    t = [t0, t0 + h]
+    y = [y0, y1] # cria um array com valor inicial de y e o proximo valor de y apos t0 + h
+    t = [t0, t0 + h] # cria um array com ponto de tempo inicial e tempo inicial e o proximo
     for k in range(1, n):
         t_next = t[k] + h
         g = lambda y_next: y_next - (4/3) * y[k] + (1/3) * y[k-1] - (2/3)*h * float(f(t_next, y_next))
