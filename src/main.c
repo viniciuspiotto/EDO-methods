@@ -1,57 +1,76 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <methods.h>
+#include "methods.h"
 #include "utils.h"
 #include "error.h"
+#include "ode_function.h"
+#include "explicit_euler.h"
+#include "implicit_euler.h"
+#include "bdf2.h"
+#include "adams_bashforth2.h"
+#include "adams_moulton2.h"
+#include "implicit_trapezoidal.h"
 
 int main() {
-
-    const double x0 = 0, y0 = 0;
+    const double x0 = 0.0, y0 = 0.0;
     const double h = 0.25;
-    const double n = 20;
-    double y1 = 0.25 * f(0, 0);
+    const int n = 20;
+    double y1 = y0 + h * ode_function(x0, y0);
 
-    Result correct = startEDO();
+    Result reference_solution = startEDO();
 
-    FILE *file = fopen("EDO_Descarga_de_Um_Capacitor_de_Circuitos_de_RC.txt", "w");
-
-    if (file == NULL) {
-        printf("Erro ao abrir arquivo para escrita!\n");
-        return 1; 
+    FILE* file = fopen("RC_Circuit_Capacitor_Discharge.txt", "w");
+    if (!file) {
+        fprintf(stderr, "Error opening file for writing!\n");
+        free(reference_solution.x_values);
+        free(reference_solution.y_values);
+        return 1;
     }
 
-    fprintf(file, "Euler Explicito \n");
-    Result res = euler(x0, y0, h, n);
-    writeFile(file, res, error(res, correct));  
+    Result res;
 
-    fprintf(file, "Euler Implicito \n");
-    res = eulerImplicito(x0, y0, h, n);
-    writeFile(file, res, error(res, correct));  
-
-    fprintf(file, "BDF2 \n");
-    res = BDF2(x0, y1, y0, h, n);
-    writeFile(file, res, error(res, correct));  
-
-    fprintf(file, "Adams Bashford 2 \n");
-    res = adamsBashford2(x0, y0, h, n);
-    writeFile(file, res, error(res, correct));   
-
-    fprintf(file, "Adams Moulton 2 \n");
-    res = adamsMoulton2(y0, y1,x0, h, n);
-    writeFile(file, res, error(res, correct));   
-
-    fprintf(file, "Trapezio Implicito \n");
-    res = trapezioImplicito(x0, y0, h, n);
-    writeFile(file, res, error(res, correct)); 
-    
-    writeFile(file, correct, 0.0);
-
-    fclose(file);
+    fprintf(file, "Explicit Euler\n");
+    res = explicit_euler(y0, x0, h, n);
+    writeFile(file, res, error(res, reference_solution));
     free(res.x_values);
     free(res.y_values);
-    
-    free(correct.x_values);
-    free(correct.y_values);
+
+    fprintf(file, "Implicit Euler\n");
+    res = implicit_euler(y0, x0, h, n);
+    writeFile(file, res, error(res, reference_solution));
+    free(res.x_values);
+    free(res.y_values);
+
+    fprintf(file, "BDF2\n");
+    res = bdf2(y0, y1, x0, h, n);
+    writeFile(file, res, error(res, reference_solution));
+    free(res.x_values);
+    free(res.y_values);
+
+    fprintf(file, "Adams-Bashforth 2\n");
+    res = adams_bashforth2(y0, x0, h, n);
+    writeFile(file, res, error(res, reference_solution));
+    free(res.x_values);
+    free(res.y_values);
+
+    fprintf(file, "Adams-Moulton 2\n");
+    res = adams_moulton2(y0, y1, x0, h, n);
+    writeFile(file, res, error(res, reference_solution));
+    free(res.x_values);
+    free(res.y_values);
+
+    fprintf(file, "Implicit Trapezoidal\n");
+    res = implicit_trapezoidal(y0, x0, h, n);
+    writeFile(file, res, error(res, reference_solution));
+    free(res.x_values);
+    free(res.y_values);
+
+    fprintf(file, "Reference Solution\n");
+    writeFile(file, reference_solution, 0.0);
+
+    fclose(file);
+    free(reference_solution.x_values);
+    free(reference_solution.y_values);
 
     return 0;
 }
