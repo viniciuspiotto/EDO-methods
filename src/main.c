@@ -12,6 +12,7 @@
 #include "adams_bashforth2.h"
 #include "adams_moulton2.h"
 #include "implicit_trapezoidal.h"
+#include "runge_kutta2.h"
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -23,11 +24,12 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "4 - Adams-Bashforth 2\n");
         fprintf(stderr, "5 - Adams-Moulton 2\n");
         fprintf(stderr, "6 - Implicit Trapezoidal\n");
+        fprintf(stderr, "7 - Runge Kutta 2\n");
         return 1;
     }
 
     int choice = atoi(argv[1]);
-    if (choice < 1 || choice > 6) {
+    if (choice < 1 || choice > 7) {
         fprintf(stderr, "Invalid option: %d\n", choice);
         return 1;
     }
@@ -69,16 +71,23 @@ int main(int argc, char *argv[]) {
             method_name = "Implicit Trapezoidal";
             res = implicit_trapezoidal(y0, x0, h, n);
             break;
+        case 7: 
+            method_name = "Runge Kutta 2";
+            res = runge_kutta2(y0, x0, h, n);
+            break;
     }
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &t_end);
 
     double elapsed_time = (t_end.tv_sec - t_start.tv_sec) + (t_end.tv_nsec - t_start.tv_nsec) / 1e9;
-    double err = error(res, reference_solution);
+    double * err = error(res, reference_solution);
 
     printf("%s\n", method_name);
     printf("Elapsed Time: %.15f s\n", elapsed_time);
-    printf("Error: %.15f\n", err);
+    printf("Error: %.15f\n", err[4]);
+    for(int i = 0; i < 4; i++){
+        printf("Error Q%d: %.15f\n", i+1, err[i]);
+    }
     printf("Results:\n");
     print_result(res);
 
@@ -93,7 +102,10 @@ int main(int argc, char *argv[]) {
     }
     fprintf(file, "%s\n", method_name);
     fprintf(file, "Elapsed Time: %.15f s\n", elapsed_time);
-    fprintf(file, "Error: %.15f\n", err);
+    fprintf(file, "Error: %.15f\n", err[4]);
+    for(int i = 0; i < 4; i++){
+        fprintf(file, "Error Q%d: %.15f\n", i+1, err[i]);
+    }
     fprintf(file, "Results:\n");
     write_result(file, res);
     fprintf(file, "\n");
