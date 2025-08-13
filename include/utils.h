@@ -2,7 +2,8 @@
 #define UTILS_H
 #include "methods.h"
 
-void writeFile (FILE * file, Result res, double error);
-Result startEDO();
+Result expected_result();
+void print_result(Result res);
+void write_result(FILE* file, Result res);
 
 #endif

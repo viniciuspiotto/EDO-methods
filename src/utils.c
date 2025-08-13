@@ -3,13 +3,15 @@
 #include <methods.h>
 #include "utils.h"
 
-Result startEDO() {
-    Result correct;
-
-    correct.size = 21;
+Result expected_result() {
+    Result correct = {.size = 21};
 
     correct.x_values = malloc(correct.size * sizeof(double));
     correct.y_values = malloc(correct.size * sizeof(double));
+    if (!correct.x_values || !correct.y_values) {
+        fprintf(stderr, "Memory allocation failed in expected_result\n");
+        exit(EXIT_FAILURE);
+    }
 
     double x_tmp[21] = {
         0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25,
@@ -30,18 +32,16 @@ Result startEDO() {
     }
 
     return correct;
-    
 }
 
-void writeFile (FILE * file, Result res, double error){
-
-    if (file == NULL) return;  
-    
+void print_result(Result res) {
     for (int i = 0; i < res.size; i++) {
-        fprintf(file, "%.10f %.10f\n", res.x_values[i], res.y_values[i]);
+        printf("    %.10f %.10f\n", res.x_values[i], res.y_values[i]);
     }
+}
 
-    fprintf(file, "%.10f\n", error);
-    fprintf(file, "\n");
-
+void write_result(FILE* file, Result res) {
+    for (int i = 0; i < res.size; i++) {
+        fprintf(file, "    %.10f %.10f\n", res.x_values[i], res.y_values[i]);
+    }
 }
