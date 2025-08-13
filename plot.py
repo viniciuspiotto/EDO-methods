@@ -32,18 +32,8 @@ def readFile(fileName):
             block.append(l)
             i += 1
 
-        error_line_index = i - len(block) - 2
-        if 0 <= error_line_index < len(lines):
-            err_line = lines[error_line_index].strip()
-            if err_line.startswith("Error:"):
-                error = float(err_line.split()[1])
-            else:
-                error = None
-        else:
-            error = None
-
         xs, ys = zip(*[map(float, line.split()) for line in block])
-        data[method] = {'x': list(xs), 'y': list(ys), 'error': error}
+        data[method] = {'x': list(xs), 'y': list(ys)}
 
     if "Exact" not in data:
         x_tmp = [
@@ -61,41 +51,9 @@ def readFile(fileName):
 
     return data
 
-def plotIndividualGraph(x, y, exactX, exactY, label, exactLabel='Exact'):
-    plt.figure(figsize=(10,6))
-    plt.plot(exactX, exactY, label=exactLabel, marker='o')
-    plt.plot(x, y, label=label, marker='o', linestyle='--')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Capacitor Voltage (V)')
-    plt.title(label)
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    os.makedirs("plots", exist_ok=True)
-    plt.savefig(f'plots/{label.lower().replace(" ", "")}.png')
-    plt.close()
-
-def plotGraphs(data):
+def plotGraph(data):
     os.makedirs("plots", exist_ok=True)
     exact = data.pop("Exact")
-
-    plt.figure(figsize=(10,6))
-    names = list(data.keys())
-    errors = [v['error'] for v in data.values()]
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2']
-    bars = plt.bar(names, errors, color=colors[:len(names)], width=0.6)
-    plt.yscale('log')
-    plt.xticks(rotation=45, ha='right')
-    plt.ylabel('RMS Error (log scale)')
-    plt.title('RMS Errors of Methods')
-    plt.subplots_adjust(bottom=0.25)
-    ymin = plt.ylim()[0]
-    for bar, error in zip(bars, errors):
-        x = bar.get_x() + bar.get_width() / 2
-        plt.text(x + 0.1, ymin * 0.8, f"{abs(error):.2f}", ha='center', va='top', fontsize=9, rotation=45)
-    plt.tight_layout()
-    plt.savefig('plots/errors.png')
-    plt.close()
 
     stableMethods = ["Implicit Euler", "BDF2", "Adams-Moulton 2", "Implicit Trapezoidal"]
     plt.figure(figsize=(10,6))
@@ -112,12 +70,8 @@ def plotGraphs(data):
     plt.savefig('plots/stablemethods.png')
     plt.close()
 
-    for method in ["Explicit Euler", "Adams-Bashforth 2"]:
-        if method in data:
-            plotIndividualGraph(data[method]['x'], data[method]['y'], exact['x'], exact['y'], method)
-
 if (len(sys.argv) < 2):
     print("Usage: ./plot.py <output_file>")
     exit(1)
 data = readFile(sys.argv[1])
-plotGraphs(data)
+plotGraph(data)
