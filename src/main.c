@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <string.h>
 #include "methods.h"
 #include "utils.h"
 #include "error.h"
@@ -11,66 +13,97 @@
 #include "adams_moulton2.h"
 #include "implicit_trapezoidal.h"
 
-int main() {
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <method>\n", argv[0]);
+        fprintf(stderr, "Methods:\n");
+        fprintf(stderr, "1 - Explicit Euler\n");
+        fprintf(stderr, "2 - Implicit Euler\n");
+        fprintf(stderr, "3 - BDF2\n");
+        fprintf(stderr, "4 - Adams-Bashforth 2\n");
+        fprintf(stderr, "5 - Adams-Moulton 2\n");
+        fprintf(stderr, "6 - Implicit Trapezoidal\n");
+        return 1;
+    }
+
+    int choice = atoi(argv[1]);
+    if (choice < 1 || choice > 6) {
+        fprintf(stderr, "Invalid option: %d\n", choice);
+        return 1;
+    }
+
     const double x0 = 0.0, y0 = 0.0;
     const double h = 0.25;
     const int n = 20;
     double y1 = y0 + h * ode_function(x0, y0);
-
-    Result reference_solution = startEDO();
-
-    FILE* file = fopen("RC_Circuit_Capacitor_Discharge.txt", "w");
-    if (!file) {
-        fprintf(stderr, "Error opening file for writing!\n");
-        free(reference_solution.x_values);
-        free(reference_solution.y_values);
-        return 1;
-    }
+    Result reference_solution = expected_result();
 
     Result res;
+    const char *method_name = NULL;
 
-    fprintf(file, "Explicit Euler\n");
-    res = explicit_euler(y0, x0, h, n);
-    writeFile(file, res, error(res, reference_solution));
-    free(res.x_values);
-    free(res.y_values);
+    struct timespec t_start, t_end;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &t_start);
 
-    fprintf(file, "Implicit Euler\n");
-    res = implicit_euler(y0, x0, h, n);
-    writeFile(file, res, error(res, reference_solution));
-    free(res.x_values);
-    free(res.y_values);
+    switch (choice) {
+        case 1: 
+            method_name = "Explicit Euler";
+            res = explicit_euler(y0, x0, h, n);
+            break;
+        case 2: 
+            method_name = "Implicit Euler";
+            res = implicit_euler(y0, x0, h, n);
+            break;
+        case 3: 
+            method_name = "BDF2";
+            res = bdf2(y0, y1, x0, h, n);
+            break;
+        case 4: 
+            method_name = "Adams-Bashforth 2";
+            res = adams_bashforth2(y0, x0, h, n);
+            break;
+        case 5: 
+            method_name = "Adams-Moulton 2";
+            res = adams_moulton2(y0, y1, x0, h, n);
+            break;
+        case 6: 
+            method_name = "Implicit Trapezoidal";
+            res = implicit_trapezoidal(y0, x0, h, n);
+            break;
+    }
 
-    fprintf(file, "BDF2\n");
-    res = bdf2(y0, y1, x0, h, n);
-    writeFile(file, res, error(res, reference_solution));
-    free(res.x_values);
-    free(res.y_values);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &t_end);
 
-    fprintf(file, "Adams-Bashforth 2\n");
-    res = adams_bashforth2(y0, x0, h, n);
-    writeFile(file, res, error(res, reference_solution));
-    free(res.x_values);
-    free(res.y_values);
+    double elapsed_time = (t_end.tv_sec - t_start.tv_sec) + (t_end.tv_nsec - t_start.tv_nsec) / 1e9;
+    double err = error(res, reference_solution);
 
-    fprintf(file, "Adams-Moulton 2\n");
-    res = adams_moulton2(y0, y1, x0, h, n);
-    writeFile(file, res, error(res, reference_solution));
-    free(res.x_values);
-    free(res.y_values);
+    printf("%s\n", method_name);
+    printf("Elapsed Time: %.15f s\n", elapsed_time);
+    printf("Error: %.15f\n", err);
+    printf("Results:\n");
+    print_result(res);
 
-    fprintf(file, "Implicit Trapezoidal\n");
-    res = implicit_trapezoidal(y0, x0, h, n);
-    writeFile(file, res, error(res, reference_solution));
-    free(res.x_values);
-    free(res.y_values);
-
-    fprintf(file, "Reference Solution\n");
-    writeFile(file, reference_solution, 0.0);
+    FILE *file = fopen("output.txt", "a");
+    if (!file) {
+        fprintf(stderr, "Error opening output.txt for writing!\n");
+        free(reference_solution.x_values);
+        free(reference_solution.y_values);
+        free(res.x_values);
+        free(res.y_values);
+        return 1;
+    }
+    fprintf(file, "%s\n", method_name);
+    fprintf(file, "Elapsed Time: %.15f s\n", elapsed_time);
+    fprintf(file, "Error: %.15f\n", err);
+    fprintf(file, "Results:\n");
+    write_result(file, res);
+    fprintf(file, "\n");
 
     fclose(file);
+
     free(reference_solution.x_values);
     free(reference_solution.y_values);
+    free(res.x_values);
+    free(res.y_values);
 
     return 0;
 }
