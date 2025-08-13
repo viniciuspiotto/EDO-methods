@@ -6,6 +6,7 @@ SRCDIR = src
 OBJDIR = obj
 BINDIR = bin
 OUTPUT_FILE = output.txt
+PLOTSDIR = plots
 
 SRCS := $(wildcard $(SRCDIR)/*.c)
 OBJS := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRCS))
@@ -24,6 +25,6 @@ run: all
 	./$(BINDIR)/$(TARGET)
 
 clean:
-	rm -rf $(OBJDIR) $(BINDIR) $(OUTPUT_FILE)
+	rm -rf $(OBJDIR) $(BINDIR) $(OUTPUT_FILE) $(PLOTSDIR)
 
 .PHONY: all run clean
