@@ -55,15 +55,21 @@ def plotGraph(data):
     os.makedirs("plots", exist_ok=True)
     exact = data.pop("Exact")
 
-    stableMethods = ["Implicit Euler", "BDF2", "Adams-Moulton 2", "Implicit Trapezoidal"]
+    stableMethods = [
+        ("Implicit Euler", "Euler Implícito"),
+        ("BDF2", "BDF2"),
+        ("Adams-Moulton 2", "Adams-Moulton 2"),
+        ("Implicit Trapezoidal", "Trapézio Implícito")
+    ]
+
     plt.figure(figsize=(10,6))
-    plt.plot(exact['x'], exact['y'], label='Exact', marker='o')
-    for method in stableMethods:
-        if method in data:
-            plt.plot(data[method]['x'], data[method]['y'], label=method, marker='o', linestyle='--')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Capacitor Voltage (V)')
-    plt.title('Stable Methods')
+    plt.plot(exact['x'], exact['y'], label='Exato', marker='o')
+    for method_en, method_pt in stableMethods:
+        if method_en in data:
+            plt.plot(data[method_en]['x'], data[method_en]['y'], label=method_pt, marker='o', linestyle='--')
+    plt.xlabel('Tempo (s)')
+    plt.ylabel('Voltagem do Capacitor (V)')
+    plt.title('Métodos Estáveis')
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
