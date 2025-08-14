@@ -13,6 +13,7 @@
 #include "adams_moulton2.h"
 #include "implicit_trapezoidal.h"
 #include "runge_kutta2.h"
+#include "implicit_midpoint.h"
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -25,11 +26,12 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "5 - Adams-Moulton 2\n");
         fprintf(stderr, "6 - Implicit Trapezoidal\n");
         fprintf(stderr, "7 - Runge Kutta 2\n");
+        fprintf(stderr, "8 - Implicit Mid Point\n");
         return 1;
     }
 
     int choice = atoi(argv[1]);
-    if (choice < 1 || choice > 7) {
+    if (choice < 1 || choice > 8) {
         fprintf(stderr, "Invalid option: %d\n", choice);
         return 1;
     }
@@ -74,6 +76,10 @@ int main(int argc, char *argv[]) {
         case 7: 
             method_name = "Runge Kutta 2";
             res = runge_kutta2(y0, x0, h, n);
+            break;
+        case 8: 
+            method_name = "Implicit Mid Point";
+            res = implicit_midpoint(y0, x0, h, n);
             break;
     }
 

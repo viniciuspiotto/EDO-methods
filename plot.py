@@ -59,7 +59,8 @@ def plotGraph(data):
         ("Implicit Euler", "Euler Implícito"),
         ("BDF2", "BDF2"),
         ("Adams-Moulton 2", "Adams-Moulton 2"),
-        ("Implicit Trapezoidal", "Trapézio Implícito")
+        ("Implicit Trapezoidal", "Trapézio Implícito"),
+        ("Implicit Mid Point", "Ponto Médio Implícito")
     ]
 
     plt.figure(figsize=(10,6))
